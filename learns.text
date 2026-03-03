@@ -1,0 +1,5 @@
+we use models : to describe schema
+we use route folder to make API
+For APIS we write logic in controller file.
+all middlewares in app.js
+server creation in appp.js
