@@ -5,3 +5,19 @@ all middlewares in app.js
 server creation in appp.js
 we do hashing of password by bcryptjs
 use storage.service.js for some code for image kit
+
+Frontend selects file →
+Request sent →
+Multer extracts file →
+req.file.buffer →
+convert to base64 →
+uploadFile() →
+ImageKit cloud →
+public URL →
+saved in DB
+
+
+to call next middleware we use next() like : in /upload we have 3 parameter calling we call 1 first then do next() in first code to call  second.
+middleware can read data , update data and send response.
+limit(n) function only allow n music to upload at a time.
+skip(n) it skip starting of n elements 
