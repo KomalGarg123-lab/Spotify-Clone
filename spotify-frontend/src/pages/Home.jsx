@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import API from "../services/api";
+import homeIcon from "../../home.svg";
+import spotifyIcon from "../../favicon.ico";
 
 export default function Home() {
+  const navigate = useNavigate();
   const [musics, setMusics] = useState([]);
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -41,6 +45,8 @@ export default function Home() {
 
   const trendingSongs = musics.filter((m) => (m.playCount || 0) > 5);
 
+  const trendingSource = trendingSongs.length > 0 ? trendingSongs : musics;
+
   const artistMap = new Map();
   musics.forEach((m) => {
     const artist = m.artist;
@@ -53,13 +59,16 @@ export default function Home() {
     artistMap.get(id).totalPlays += plays;
   });
 
-  const popularArtists = Array.from(artistMap.values()).filter(
+  let popularArtists = Array.from(artistMap.values()).filter(
     (item) => item.totalPlays > 5
   );
+  if (popularArtists.length === 0) {
+    popularArtists = Array.from(artistMap.values());
+  }
 
-  const popularAlbumsAndSingles = trendingSongs;
-  const popularRadio = trendingSongs;
-  const featuredCharts = [...trendingSongs].sort(
+  const popularAlbumsAndSingles = trendingSource;
+  const popularRadio = trendingSource;
+  const featuredCharts = [...trendingSource].sort(
     (a, b) => (b.playCount || 0) - (a.playCount || 0)
   );
 
@@ -114,60 +123,121 @@ export default function Home() {
       <div
         style={{
           height: "64px",
-          padding: "16px 24px",
+          padding: "10px 24px",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
+          gap: "16px",
           background:
-            "linear-gradient(90deg, rgba(0,0,0,0.8), rgba(0,0,0,0.4))",
+            "linear-gradient(90deg, rgba(0,0,0,0.9), rgba(0,0,0,0.6))",
           position: "sticky",
           top: 0,
           zIndex: 10,
         }}
       >
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            type="button"
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              border: "none",
-              background: "#050505",
-              color: "white",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
-          >
-            {"<"}
-          </button>
-          <button
-            type="button"
-            style={{
-              width: "32px",
-              height: "32px",
-              borderRadius: "50%",
-              border: "none",
-              background: "#050505",
-              color: "white",
-              cursor: "pointer",
-              fontSize: "16px",
-            }}
-          >
-            {">"}
-          </button>
-        </div>
-
+        {/* Left: Spotify logo + home + search bar */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
             gap: "12px",
-            fontSize: "14px",
+            flex: 1,
+            minWidth: 0,
           }}
         >
+          <img
+            src={spotifyIcon}
+            alt="Spotify"
+            style={{ width: 28, height: 28, borderRadius: "50%" }}
+          />
+
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              padding: "6px 10px",
+              borderRadius: "999px",
+              background: "#181818",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/")}
+          >
+            <img
+              src={homeIcon}
+              alt="Home"
+              style={{ width: 18, height: 18 }}
+            />
+            <span style={{ fontSize: "14px", fontWeight: 600 }}>Home</span>
+          </div>
+
+          <div
+            style={{
+              flex: 1,
+              maxWidth: "520px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              background: "#1f1f1f",
+              borderRadius: "999px",
+              padding: "6px 12px",
+              marginLeft: "8px",
+              cursor: "pointer",
+            }}
+            onClick={() => navigate("/search")}
+          >
+            <span
+              style={{
+                fontSize: "16px",
+              }}
+            >
+              🔍
+            </span>
+            <input
+              type="text"
+              placeholder="What do you want to play?"
+              style={{
+                flex: 1,
+                border: "none",
+                outline: "none",
+                background: "transparent",
+                color: "white",
+                fontSize: "14px",
+                pointerEvents: "none",
+              }}
+            />
+          </div>
+        </div>
+
+        {/* Right side actions like Premium / Login */}
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: "16px",
+            fontSize: "13px",
+          }}
+        >
+          <span style={{ color: "#fff", cursor: "pointer" }}>Premium</span>
+          <span style={{ color: "#fff", cursor: "pointer" }}>Support</span>
+          <span style={{ color: "#fff", cursor: "pointer" }}>Download</span>
+          <span
+            style={{ color: "#fff", cursor: "pointer" }}
+            onClick={() => navigate("/library")}
+          >
+            Your Library
+          </span>
+          <span
+            style={{
+              height: "24px",
+              width: "1px",
+              background: "#3f3f3f",
+            }}
+          />
+          <span style={{ color: "#fff", cursor: "pointer" }}>Install App</span>
           <button
             type="button"
+            onClick={() => navigate("/register")}
             style={{
               background: "transparent",
               border: "none",
@@ -180,6 +250,7 @@ export default function Home() {
           </button>
           <button
             type="button"
+            onClick={() => navigate("/login")}
             style={{
               borderRadius: "999px",
               border: "none",
