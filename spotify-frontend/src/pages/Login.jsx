@@ -22,6 +22,11 @@ export default function Login() {
       });
 
       console.log("Login success:", res.data);
+      try {
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+      } catch (e) {
+        console.log("Failed to persist user in localStorage", e);
+      }
       alert("Login Success");
       navigate("/");
     } catch (err) {

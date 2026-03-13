@@ -8,6 +8,8 @@ export default function Register() {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
+  const [photoFile, setPhotoFile] = useState(null);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -17,10 +19,20 @@ export default function Register() {
     setLoading(true);
 
     try {
-      const res = await API.post("/auth/register", {
-        username,
-        email,
-        password,
+      const formData = new FormData();
+      formData.append("username", username);
+      formData.append("email", email);
+      formData.append("password", password);
+      formData.append("role", role);
+
+      if (role === "artist" && photoFile) {
+        formData.append("photo", photoFile);
+      }
+
+      const res = await API.post("/auth/register", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
       });
 
       console.log("Register success:", res.data);
@@ -122,7 +134,7 @@ export default function Register() {
             />
           </div>
 
-          <div style={{ marginBottom: "20px" }}>
+          <div style={{ marginBottom: "16px" }}>
             <label style={{ display: "block", fontSize: "14px", marginBottom: "6px" }}>
               Password
             </label>
@@ -143,6 +155,56 @@ export default function Register() {
               }}
             />
           </div>
+
+          <div style={{ marginBottom: "20px" }}>
+            <label style={{ display: "block", fontSize: "14px", marginBottom: "6px" }}>
+              Role
+            </label>
+            <select
+              value={role}
+              onChange={(e) => setRole(e.target.value)}
+              style={{
+                width: "100%",
+                padding: "10px 12px",
+                borderRadius: "6px",
+                border: "none",
+                outline: "none",
+                background: "#303030",
+                color: "white",
+                cursor: "pointer",
+              }}
+            >
+              <option value="user">Listener</option>
+              <option value="artist">Artist</option>
+            </select>
+          </div>
+
+          {role === "artist" && (
+            <div style={{ marginBottom: "20px" }}>
+              <label style={{ display: "block", fontSize: "14px", marginBottom: "6px" }}>
+                Artist photo
+              </label>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => setPhotoFile(e.target.files?.[0] || null)}
+                style={{
+                  width: "100%",
+                  fontSize: "13px",
+                }}
+                required
+              />
+              <p
+                style={{
+                  marginTop: "6px",
+                  fontSize: "12px",
+                  color: "#b3b3b3",
+                }}
+              >
+                Upload a clear profile photo to appear in Popular artists.
+              </p>
+            </div>
+          )}
 
           <button
             type="submit"

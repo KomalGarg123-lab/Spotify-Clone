@@ -14,7 +14,14 @@ const musicSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "user",
         required: true,
-    }
+    },
+    coverUri: {
+        type: String,
+    },
+    playCount: {
+        type: Number,
+        default: 0,
+    },
 })
 
 

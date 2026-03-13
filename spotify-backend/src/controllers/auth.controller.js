@@ -1,84 +1,96 @@
 const userModel = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const { uploadFile } = require("../services/storage.service")
 
 
 async function registerUser(req, res) {
 
-const { username, email, password, role = "user" } = req.body;
+    const { username, email, password, role = "user" } = req.body;
 
-const isUserAlreadyExists = await userModel.findOne({
-$or: [{ username }, { email }]
-})
+    const isUserAlreadyExists = await userModel.findOne({
+        $or: [{ username }, { email }]
+    })
 
-if (isUserAlreadyExists) {
-return res.status(409).json({ message: "User already exists" })
-}
+    if (isUserAlreadyExists) {
+        return res.status(409).json({ message: "User already exists" })
+    }
 
-const hash = await bcrypt.hash(password, 10)
+    const hash = await bcrypt.hash(password, 10)
 
-const user = await userModel.create({
-username,
-email,
-password: hash,
-role
-})
+    let photoUri;
+    const file = req.file;
 
-const token = jwt.sign({
-id: user._id,
-role: user.role,
-}, process.env.JWT_SECRET)
+    if (file && role === "artist") {
+        const uploadResult = await uploadFile(file.buffer.toString('base64'));
+        photoUri = uploadResult.url;
+    }
 
-res.cookie("token", token)
+    const user = await userModel.create({
+        username,
+        email,
+        password: hash,
+        role,
+        photoUri,
+    })
 
-res.status(201).json({
-message: "User registered successfully",
-user: {
-id: user._id,
-username: user.username,
-email: user.email,
-role: user.role,
-}
-})
+    const token = jwt.sign({
+        id: user._id,
+        role: user.role,
+    }, process.env.JWT_SECRET)
+
+    res.cookie("token", token)
+
+    res.status(201).json({
+        message: "User registered successfully",
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            photoUri: user.photoUri,
+        }
+    })
 }
 
 
 async function loginUser(req, res) {
 
-console.log("BODY:", req.body)
+    console.log("BODY:", req.body)
 
-const { username, email, password } = req.body;
+    const { username, email, password } = req.body;
 
-const user = await userModel.findOne({
-$or: [{ username }, { email }]
-})
+    const user = await userModel.findOne({
+        $or: [{ username }, { email }]
+    })
 
-if (!user) {
-return res.status(401).json({ message: "Invalid credentials" })
-}
+    if (!user) {
+        return res.status(401).json({ message: "Invalid credentials" })
+    }
 
-const isPasswordValid = await bcrypt.compare(password, user.password)
+    const isPasswordValid = await bcrypt.compare(password, user.password)
 
-if (!isPasswordValid) {
-return res.status(401).json({ message: "Invalid credentials" })
-}
+    if (!isPasswordValid) {
+        return res.status(401).json({ message: "Invalid credentials" })
+    }
 
-const token = jwt.sign({
-id: user._id,
-role: user.role,
-}, process.env.JWT_SECRET)
+    const token = jwt.sign({
+        id: user._id,
+        role: user.role,
+    }, process.env.JWT_SECRET)
 
-res.cookie("token", token)
+    res.cookie("token", token)
 
-res.status(200).json({
-message: "User logged in successfully",
-user: {
-id: user._id,
-username: user.username,
-email: user.email,
-role: user.role,
-}
-})
+    res.status(200).json({
+        message: "User logged in successfully",
+        user: {
+            id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role,
+            photoUri: user.photoUri,
+        }
+    })
 
 }
 

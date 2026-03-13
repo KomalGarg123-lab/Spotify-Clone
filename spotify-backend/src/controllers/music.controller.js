@@ -6,14 +6,26 @@ const jwt = require("jsonwebtoken");
 
 async function createMusic(req, res) {
     const { title } = req.body;
-    const file = req.file;
 
-    const result = await uploadFile(file.buffer.toString('base64'))
+    const musicFile = req.files?.music?.[0];
+    const coverFile = req.files?.cover?.[0];
+
+    if (!musicFile) {
+        return res.status(400).json({ message: "Music file is required" });
+    }
+
+    const musicUpload = await uploadFile(musicFile.buffer.toString('base64'));
+
+    let coverUpload = null;
+    if (coverFile) {
+        coverUpload = await uploadFile(coverFile.buffer.toString('base64'));
+    }
 
     const music = await musicModel.create({
-        uri: result.url,
+        uri: musicUpload.url,
         title,
         artist: req.user.id,
+        coverUri: coverUpload ? coverUpload.url : undefined,
     })
 
     res.status(201).json({
@@ -23,6 +35,7 @@ async function createMusic(req, res) {
             uri: music.uri,
             title: music.title,
             artist: music.artist,
+            coverUri: music.coverUri,
         }
     })
 
@@ -53,13 +66,37 @@ async function createAlbum(req, res) {
 }
 
 async function getAllMusics(req, res) {
-    const musics = await musicModel.find().skip(1).limit(10) .populate("artist", "username email")
+    const musics = await musicModel
+        .find()
+        .limit(50)
+        .populate("artist", "username email photoUri role")
 
     res.status(200).json({
         message: "Musics fetched successfully",
         musics: musics,
     })
 
+}
+
+async function incrementPlayCount(req, res) {
+    const musicId = req.params.musicId;
+
+    const music = await musicModel
+        .findByIdAndUpdate(
+            musicId,
+            { $inc: { playCount: 1 } },
+            { new: true }
+        )
+        .populate("artist", "username email photoUri role");
+
+    if (!music) {
+        return res.status(404).json({ message: "Music not found" });
+    }
+
+    return res.status(200).json({
+        message: "Play count updated",
+        music,
+    })
 }
 
 async function getAllAlbums(req, res) {
@@ -87,4 +124,4 @@ async function getAlbumById(req, res) {
 }
 
 
-module.exports = { createMusic, createAlbum, getAllMusics, getAllAlbums, getAlbumById }
+module.exports = { createMusic, createAlbum, getAllMusics, getAllAlbums, getAlbumById, incrementPlayCount }
