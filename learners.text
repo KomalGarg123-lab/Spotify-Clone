@@ -4,6 +4,22 @@ Start with Frontend(React) :
         main.jsx connext app.jsx the data of app.jsx stored in html using main.jsx
         and we use global css as a index.css that was applicable on our whole website.
 
+        now -->App.jsx poori application ka main entry point hai 
+        jo React Router ke through Single Page Application (SPA) 
+        setup karta hai. path for all url .
+
+        now--> api.js connect frontend and backend using axios.
+        now--> in pages ..... every page simply have one function which was called by app.jsx and 
+        we call that function then it show ui(return) when we fill something in ui like log in details then it come in handle function inside the function 
+        that function give data to backend and recieve output. 
+
+        ... main.jsx ek bar app.jsx ko chlata hai or uska bad jub bhi url change hota hai toh BrowserRouter routes check krka dusra page load krta h 
+
+        .... so main story is main.jsx render app.jsx app.jsx render "/" now in "/" we have home page whenever we click something in home page 
+        url change ten BrowserRouter(in app.jsx) check to render which page like "/login" now in login page we see log in ui rendered (in login we have return that has ui)
+        now we fill form and submit ...login got data login send data to backend then backend check data and save in database and send response of successfull now we do diffn ACTION WHAT WE WANT AFTER SUCCESSFULL LOGIN .
+        
+
 SPA (SIGNLE PAGE APPLICATION):
                 Single Page Application (SPA) React me ek aisa app hota hai jisme 
                 sirf ek HTML file (index.html) load hoti hai aur saara content React

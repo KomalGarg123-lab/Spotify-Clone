@@ -8,7 +8,7 @@ export default defineConfig({
 
 /* 
 Vite ek modern frontend tool hai jo React projects
-ke liye bahut fast dev server aur build system 
+ke liye bahut fast dev server a build system 
 provide karta hai, jabki CRA (Create React App) purana tool hai
 jo similar kaam karta tha lekin thoda slow aur heavy hai. 
 Hum vite.config.js me React plugin add karte hain taaki Vite samajh sake ki hum JSX use kar rahe hain,
